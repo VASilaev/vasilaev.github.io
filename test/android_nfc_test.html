@@ -16,6 +16,7 @@
           try {
             await ndef.scan();
             ndef.onreading = event => {
+              consoleLog("serialNumber:  " + event.serialNumber);
               const decoder = new TextDecoder();
               for (const record of event.message.records) {
                 consoleLog("Record type:  " + record.recordType);
