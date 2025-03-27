@@ -48,17 +48,17 @@
 
                 cardId = event.serialNumber.replaceAll(':','');
 
-                consoleLog ('<p>Обнаружена карта "${cardId}@".</p>');
+                consoleLog (`<p>Обнаружена карта "${cardId}@".</p>`);
                         
                 const url = `https://script.google.com/macros/s/${password}/exec?command=check&cardid=${cardId}`;
                   
-                consoleLog ('<p>Обращение к серверу...</p>');
+                consoleLog (`<p>Обращение к серверу...</p>`);
                 fetch(url)
                     .then(response => response.json())
                     .then(data => {
                         if(data.hasOwnProperty('owner'))
                           {
-                            consoleLog ('<p>${data.owner}</p>');
+                            consoleLog (`<p>${data.owner}</p>`);
                           }
                         
                         if (data.result == 'success') {
@@ -66,12 +66,12 @@
             
                           if(data.hasOwnProperty('warnings'))
                             {
-                                consoleLog ('<p style="color: blue;">${data.warnings}</p>');
+                                consoleLog (`<p style="color: blue;">${data.warnings}</p>`);
                             }  
                         } else if (data.result == 'denied') {
                           consoleLog ('<p style="color: red;">Доступ запрещен</p>');
                         } else {
-                           consoleLog ('<p style="color: red;">Хранилище вернуло ошибку</p><pre>${data.error}</pre>');
+                           consoleLog (`<p style="color: red;">Хранилище вернуло ошибку</p><pre>${data.error}</pre>`);
                         }
                     })
                     .catch(error => {
@@ -80,7 +80,7 @@
                     });        
               }
             } catch(error) {
-              consoleLog ('<p style="color: red;"><pre>${error}</pre></p>');
+              consoleLog (`<p style="color: red;"><pre>${error}</pre></p>`);
             }
           consoleLog ('<p>Готов читать карты</p>');
       } else {
@@ -96,9 +96,7 @@
 <script>
     if (!password) {
         consoleLog ('<p style="color: red;">Необходим ключ доступа!</p>');
-        return;
     } else {    
-       consoleLog ('<p>Ключ доступа "${password}"</p>');
       startScaning();
     }
 </script>
