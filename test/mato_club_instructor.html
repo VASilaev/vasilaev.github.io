@@ -3,175 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Интерактивная форма</title>
-    <style>
-        .tab {
-            display: none;
-        }
-        .tab.active {
-            display: block;
-        }
-    </style>
+    <title>КПП МАТО</title>
 </head>
 
 <script>
 
       function consoleLog(data) {
         var logElement = document.getElementById('log');
-        logElement.innerHTML = data + '<br/>' + logElement.innerHTML;
+        logElement.innerHTML = logElement.innerHTML + '<br/>' + data ;
       }
+
+      function clearLog() {
+        var logElement = document.getElementById('log');
+        logElement.innerHTML = '';
+      }
+
+    function getKeyParameter() {
+        const currentUrl = window.location.href;
+        const url = new URL(currentUrl);
+        const key = url.searchParams.get('key');
+        return key;
+    }
 </script>
   
 <body>
-  
-<div>
-    <button onclick="showTab('accessCheck')">Проверка доступа</button>
-    <button onclick="showTab('prepareCard')">Подготовка карты</button>
-    <button onclick="showTab('password')">Пароль</button>
-</div>
-
-<div id="accessCheck" class="tab active">
-    <h2>Проверка доступа</h2>
-</div>
-
-<div id="prepareCard" class="tab">
-    <h2>Подготовка карты</h2>
-    <label for="cardId">Идентификатор метки:</label>
-    <input type="text" id="cardId">
-    <button onclick="saveCard()">Записать</button>
-</div>
-
-<div id="password" class="tab">
-    <h2>Пароль</h2>
-    <label for="password">Пароль:</label>
-    <input type="password" id="passwordInput">
-</div>
-  
+    
 <div id="log"></div>
   
 <script>
-    function showTab(tabId) {
-        const tabs = document.querySelectorAll('.tab');
-        tabs.forEach(tab => {
-            tab.classList.remove('active');
-        });
-        document.getElementById(tabId).classList.add('active');
-    }
-    
-    function write(data, { timeout } = {}) {
-      return new Promise((resolve, reject) => {
-        const ctlr = new AbortController();
-        ctlr.signal.onabort = () => reject("Time is up, bailing out!");
-        setTimeout(() => ctlr.abort(), timeout);
-    
-        ndef.addEventListener("reading", event => {
-          ndef.write(data, { signal: ctlr.signal }).then(resolve, reject);
-        }, { once: true });
-      });
-    }  
 
-  const ndef = new NDEFReader();
-  let ignoreRead = false;
-  
-  ndef.onreading = (event) => {
-    const password = document.getElementById('passwordInput').value;
-    
-    if (ignoreRead ) {
-      return; // write pending, ignore read.
-    }
-
-
-    consoleLog ('<p>Получена карта с номером serialNumber</p>');
-    
-    
-    const decoder = new TextDecoder();
-    for (const record of event.message.records) {
-      if (record.recordType === 'text' && decoder.decode(record.data).startsWith('MATO:')) {
-        if (!password) {
-            consoleLog ('<p style="color: red;">Необходимо заполнить пароль!</p>');
-            return;
-        }  
-        const cardId = decoder.decode(record.data);
-        const url = `https://script.google.com/macros/s/${password}/exec?command=check&cardid=` + cardId.slice(5);
-        consoleLog ('<p>Обращение к серверу...</p>');
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                if (data.result == 'success') {
-                  consoleLog ('<p style="color: green;">Доступ разрешен</p>');
-                } else if (data.result == 'denied') {
-                  consoleLog ('<p style="color: red;">Доступ запрещен</p>');
-                } else {
-                   consoleLog ('<p style="color: red;">Ошибка при доступе к гугл диску</p>');
-                }
-            })
-            .catch(error => {
-                console.error('Ошибка:', error);
-                consoleLog ('<p style="color: red;">Произошла ошибка при выполнении запроса.</p>');
-            });        
-
+  if ("NDEFReader" in window) {
+      try {
+          const ndef = new NDEFReader();
+          let ignoreRead = false;
         
-      } else {
-         consoleLog ('<p>Неизвестная метка</p>');
-      }
-    }  
-    
-  };
-
-  
-    function write(data, { timeout } = {}) {
-      return new Promise((resolve, reject) => {
-        const ctlr = new AbortController();
-        ctlr.signal.onabort = () => reject("Время вышло!");
-        setTimeout(() => ctlr.abort(), timeout);
-    
-        ndef.addEventListener("reading", event => {
-          ndef.write(`MATO:${cardId}`, { signal: ctlr.signal }).then(resolve, reject);
-        }, { once: true });
-      });
-    }  
-
-  
-    function saveCard() {
-        const cardId = document.getElementById('cardId').value;
-        const password = document.getElementById('passwordInput').value;
-
-        if (!password) {
-            consoleLog ('<p style="color: red;">Необходимо заполнить поле пароля!</p>');
-            return;
+          await ndef.scan();
+              
+          ndef.onreading = (event) => {
+            const password = getKeyParameter();
+            
+            if (ignoreRead ) {
+              return; // write pending, ignore read.
+            }
+        
+            clearLog();
+              
+            if (!password) {
+                consoleLog ('<p style="color: red;">Необходим ключ доступа!</p>');
+                return;
+            }  
+              
+            consoleLog ('<p>Получена карта с номером serialNumber</p>');
+        
+            cardId = event.serialNumber.replaceAll(':','');
+        
+            const url = `https://script.google.com/macros/s/${password}/exec?command=check&cardid=${cardId}`;
+              
+            consoleLog ('<p>Обращение к серверу...</p>');
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if(data.hasOwnProperty('owner'))
+                      {
+                        consoleLog ('<p>${data.owner}</p>');
+                      }
+                    
+                    if (data.result == 'success') {
+                      consoleLog ('<p style="color: green;">Доступ разрешен</p>');
+        
+                      if(data.hasOwnProperty('warnings'))
+                        {
+                            consoleLog ('<p style="color: blue;">${data.warnings}</p>');
+                        }  
+                    } else if (data.result == 'denied') {
+                      consoleLog ('<p style="color: red;">Доступ запрещен</p>');
+                    } else {
+                       consoleLog ('<p style="color: red;">Хранилище вернуло ошибку</p><pre>${data.error}</pre>');
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                    consoleLog ('<p style="color: red;">Произошла ошибка при выполнении запроса.</p>');
+                });        
+          }
+        } catch(error) {
+          consoleLog ('<p style="color: red;"><pre>${error}</pre></p>');
         }
-
-        const url = `https://script.google.com/macros/s/${password}/exec?command=check&cardid=${cardId}`;
-
-        consoleLog ('<p>Запрос в таблицу</p>');
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                if (data.result !== 'error') {
-                  consoleLog ('<p>Приложите карту к телефону</p>');
-                  
-
-                  
-                  await ndef.scan();
-                  try {
-                    // Let's wait for 5 seconds only.
-                    await write("Hello World", { timeout: 5_000 });
-                  } catch(err) {
-                    console.error("Something went wrong", err);
-                  } finally {
-                    console.log("We wrote to a tag!");
-                  }
-                  
-                    alert(`Карта с идентификатором ${cardId} сохранена.`);-
-                } else {
-                   consoleLog ('<p style="color: red;">Ошибка при доступе к гугл диску</p>');
-                }
-            })
-            .catch(error => {
-                console.error('Ошибка:', error);
-                consoleLog ('<p style="color: red;">Произошла ошибка при выполнении запроса.</p>');
-            });
-    }
+      consoleLog ('<p>Готов читать карты</p>');
+  } else {
+    consoleLog ('Браузер не поддерживает чтение NFC меток');
+  }
 </script>
 
 </body>
