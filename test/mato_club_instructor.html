@@ -50,7 +50,7 @@
 
                 consoleLog (`<p>Обнаружена карта "${cardId}@".</p>`);
                         
-                const url = `https://script.google.com/macros/s/${password}/exec?command=check&cardid=${cardId}`;
+                const url = `https://script.google.com/macros/s/${password}/exec?command=checkcard&cardid=${cardId}`;
                   
                 consoleLog (`<p>Обращение к серверу...</p>`);
                 fetch(url)
