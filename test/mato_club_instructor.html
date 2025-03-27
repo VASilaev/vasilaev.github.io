@@ -70,6 +70,8 @@
                             }  
                         } else if (data.result == 'denied') {
                           consoleLog ('<p style="color: red;">Доступ запрещен</p>');
+                        } else if (data.result == 'new') {
+                          consoleLog ('<p style="color: green;">Новая карта. Добавлена в список. Заполните остальные поля.</p>');
                         } else {
                            consoleLog (`<p style="color: red;">Хранилище вернуло ошибку</p><pre>${data.error}</pre>`);
                         }
