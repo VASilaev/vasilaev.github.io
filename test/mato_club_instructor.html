@@ -24,6 +24,71 @@
         const key = url.searchParams.get('key');
         return key;
     }
+    
+    
+    async function startScaning() {
+      if ("NDEFReader" in window) {
+          try {
+              const ndef = new NDEFReader();
+              let ignoreRead = false;
+            
+              await ndef.scan();
+                  
+              ndef.onreading = (event) => {
+                const password = getKeyParameter();
+                
+                if (ignoreRead ) {
+                  return; // write pending, ignore read.
+                }
+            
+                clearLog();
+                  
+                if (!password) {
+                    consoleLog ('<p style="color: red;">Необходим ключ доступа!</p>');
+                    return;
+                }  
+                  
+                consoleLog ('<p>Получена карта с номером serialNumber</p>');
+            
+                cardId = event.serialNumber.replaceAll(':','');
+            
+                const url = `https://script.google.com/macros/s/${password}/exec?command=check&cardid=${cardId}`;
+                  
+                consoleLog ('<p>Обращение к серверу...</p>');
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        if(data.hasOwnProperty('owner'))
+                          {
+                            consoleLog ('<p>${data.owner}</p>');
+                          }
+                        
+                        if (data.result == 'success') {
+                          consoleLog ('<p style="color: green;">Доступ разрешен</p>');
+            
+                          if(data.hasOwnProperty('warnings'))
+                            {
+                                consoleLog ('<p style="color: blue;">${data.warnings}</p>');
+                            }  
+                        } else if (data.result == 'denied') {
+                          consoleLog ('<p style="color: red;">Доступ запрещен</p>');
+                        } else {
+                           consoleLog ('<p style="color: red;">Хранилище вернуло ошибку</p><pre>${data.error}</pre>');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Ошибка:', error);
+                        consoleLog ('<p style="color: red;">Произошла ошибка при выполнении запроса.</p>');
+                    });        
+              }
+            } catch(error) {
+              consoleLog ('<p style="color: red;"><pre>${error}</pre></p>');
+            }
+          consoleLog ('<p>Готов читать карты</p>');
+      } else {
+        consoleLog ('Браузер не поддерживает чтение NFC меток');
+      }    
+    }
 </script>
   
 <body>
@@ -31,68 +96,7 @@
 <div id="log"></div>
   
 <script>
-
-  if ("NDEFReader" in window) {
-      try {
-          const ndef = new NDEFReader();
-          let ignoreRead = false;
-        
-          await ndef.scan();
-              
-          ndef.onreading = (event) => {
-            const password = getKeyParameter();
-            
-            if (ignoreRead ) {
-              return; // write pending, ignore read.
-            }
-        
-            clearLog();
-              
-            if (!password) {
-                consoleLog ('<p style="color: red;">Необходим ключ доступа!</p>');
-                return;
-            }  
-              
-            consoleLog ('<p>Получена карта с номером serialNumber</p>');
-        
-            cardId = event.serialNumber.replaceAll(':','');
-        
-            const url = `https://script.google.com/macros/s/${password}/exec?command=check&cardid=${cardId}`;
-              
-            consoleLog ('<p>Обращение к серверу...</p>');
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if(data.hasOwnProperty('owner'))
-                      {
-                        consoleLog ('<p>${data.owner}</p>');
-                      }
-                    
-                    if (data.result == 'success') {
-                      consoleLog ('<p style="color: green;">Доступ разрешен</p>');
-        
-                      if(data.hasOwnProperty('warnings'))
-                        {
-                            consoleLog ('<p style="color: blue;">${data.warnings}</p>');
-                        }  
-                    } else if (data.result == 'denied') {
-                      consoleLog ('<p style="color: red;">Доступ запрещен</p>');
-                    } else {
-                       consoleLog ('<p style="color: red;">Хранилище вернуло ошибку</p><pre>${data.error}</pre>');
-                    }
-                })
-                .catch(error => {
-                    console.error('Ошибка:', error);
-                    consoleLog ('<p style="color: red;">Произошла ошибка при выполнении запроса.</p>');
-                });        
-          }
-        } catch(error) {
-          consoleLog ('<p style="color: red;"><pre>${error}</pre></p>');
-        }
-      consoleLog ('<p>Готов читать карты</p>');
-  } else {
-    consoleLog ('Браузер не поддерживает чтение NFC меток');
-  }
+ startScaning();
 </script>
 
 </body>
