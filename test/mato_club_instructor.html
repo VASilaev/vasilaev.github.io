@@ -24,8 +24,9 @@
         const key = url.searchParams.get('key');
         return key;
     }
-    
-    
+
+    const password = getKeyParameter();
+
     async function startScaning() {
       if ("NDEFReader" in window) {
           try {
@@ -35,7 +36,7 @@
               await ndef.scan();
                   
               ndef.onreading = (event) => {
-                const password = getKeyParameter();
+               
                 
                 if (ignoreRead ) {
                   return; // write pending, ignore read.
@@ -43,15 +44,12 @@
             
                 clearLog();
                   
-                if (!password) {
-                    consoleLog ('<p style="color: red;">Необходим ключ доступа!</p>');
-                    return;
-                }  
-                  
-                consoleLog ('<p>Получена карта с номером serialNumber</p>');
-            
+
+
                 cardId = event.serialNumber.replaceAll(':','');
-            
+
+                consoleLog ('<p>Обнаружена карта "${cardId}@".</p>');
+                        
                 const url = `https://script.google.com/macros/s/${password}/exec?command=check&cardid=${cardId}`;
                   
                 consoleLog ('<p>Обращение к серверу...</p>');
@@ -96,7 +94,12 @@
 <div id="log"></div>
   
 <script>
- startScaning();
+    if (!password) {
+        consoleLog ('<p style="color: red;">Необходим ключ доступа!</p>');
+        return;
+    } else {    
+      startScaning();
+    }
 </script>
 
 </body>
