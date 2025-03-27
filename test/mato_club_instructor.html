@@ -48,7 +48,7 @@
 
                 cardId = event.serialNumber.replaceAll(':','');
 
-                consoleLog (`<p>Обнаружена карта "${cardId}@".</p>`);
+                consoleLog (`<p>Обнаружена карта "${cardId}".</p>`);
                         
                 const url = `https://script.google.com/macros/s/${password}/exec?command=checkcard&cardid=${cardId}`;
                   
@@ -66,7 +66,7 @@
             
                           if(data.hasOwnProperty('warnings'))
                             {
-                                consoleLog (`<p style="color: blue;">${data.warnings}</p>`);
+                                consoleLog (`<p style="color: blue;">${data.warnings.replaceAll('\n','<br/>')}</p>`);
                             }  
                         } else if (data.result == 'denied') {
                           consoleLog ('<p style="color: red;">Доступ запрещен</p>');
