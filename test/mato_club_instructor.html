@@ -96,11 +96,11 @@
 <div id="log"></div>
   
 <script>
+    const nfcPermissionStatus = await navigator.permissions.query({ name: "nfc" });
     if ("NDEFReader" in window) {
       if (!password) {
         consoleLog ('<p style="color: red;">Необходим ключ доступа!</p>');      
       } else {
-        const nfcPermissionStatus = await navigator.permissions.query({ name: "nfc" });
         if (nfcPermissionStatus.state === "granted") {
           // Доступ NFC уже был предоставлен — можно начинать сканирование.
           startScanning();
