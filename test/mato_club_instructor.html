@@ -111,7 +111,7 @@
           startScanning();
         } else {
           // Показать кнопку сканирования.
-          consoleLog (`<p style="color: red;">Разрешение NFC: {nfcPermissionStatus.state}.</p>`);
+          consoleLog (`<p style="color: red;">Разрешение NFC: ${nfcPermissionStatus.state}.</p>`);
           document.getElementById("scanButton").style.display = "block";
           document.getElementById("scanButton").onclick = event => {
             // Запросить у пользователя разрешение на отправку и получение информации при касании NFC-устройств.
