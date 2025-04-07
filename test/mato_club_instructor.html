@@ -101,7 +101,7 @@
   
 <script>
     //const nfcPermissionStatus = checkNFCPermission();
-    const nfcPermissionStatus = "granted";
+    const nfcPermissionStatus = {state: "granted"};
     if ("NDEFReader" in window) {
       if (!password) {
         consoleLog ('<p style="color: red;">Необходим ключ доступа!</p>');      
