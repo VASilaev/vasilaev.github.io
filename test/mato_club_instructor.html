@@ -87,6 +87,10 @@
       consoleLog ('<p>Готов читать карты</p>');
   
     }
+
+    async function checkNFCPermission() {
+      return await navigator.permissions.query({ name: "nfc" })
+    }
 </script>
   
 <body>
@@ -96,7 +100,7 @@
 <div id="log"></div>
   
 <script>
-    const nfcPermissionStatus = await navigator.permissions.query({ name: "nfc" });
+    const nfcPermissionStatus = checkNFCPermission();
     if ("NDEFReader" in window) {
       if (!password) {
         consoleLog ('<p style="color: red;">Необходим ключ доступа!</p>');      
