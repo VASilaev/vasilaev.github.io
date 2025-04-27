@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Генерация формы из JSON</title>
+    <style>
+        .form-element {
+            margin-bottom: 15px;
+        }
+    </style>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
+  <style>
+  #custom-handle {
+    width: 5em;
+    height: 1.6em;
+    top: 50%;
+    margin-top: -.8em;
+    text-align: center;
+    line-height: 1.6em;
+  }
+  </style>
+      
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script src="https://code.jquery.com/ui/1.14.1/jquery-ui.js"></script>
+    
+    
+</head>
+<body>
+
+<div id="formContainer"></div>
+
+<script>
+    const refs = {
+    "team" : {
+      "elementtype" : "list",
+      "caption" : "Команда",
+      "extra":{"bits" : 2},
+      "values" : {
+        "0" : {
+          "caption" : "Красный"
+        },
+        "1" : {
+          "caption" : "Синий"
+        },
+        "2" : {
+          "caption" : "Желтый"
+        },
+        "3" : {
+          "caption" : "Зеленый"
+        }
+      }
+    },
+    "health" : {
+      "elementtype" : "list",
+      "caption" : "Очки здоровья",
+      "extra":{"bits" : 8},
+      "values" : {
+        "0" : {
+          "caption" : "1"
+        },
+        "1" : {
+          "caption" : "2"
+        },
+        "2" : {
+          "caption" : "3"
+        },
+        "3" : {
+          "caption" : "4"
+        },
+        "4" : {
+          "caption" : "5"
+        },
+        "5" : {
+          "caption" : "6"
+        },
+        "6" : {
+          "caption" : "7"
+        },
+        "7" : {
+          "caption" : "8"
+        },
+        "8" : {
+          "caption" : "9"
+        },
+        "9" : {
+          "caption" : "10"
+        },
+        "10" : {
+          "caption" : "11"
+        },
+        "11" : {
+          "caption" : "12"
+        },
+        "12" : {
+          "caption" : "13"
+        },
+        "13" : {
+          "caption" : "14"
+        },
+        "14" : {
+          "caption" : "15"
+        },
+        "15" : {
+          "caption" : "16"
+        },
+        "16" : {
+          "caption" : "17"
+        },
+        "17" : {
+          "caption" : "18"
+        },
+        "18" : {
+          "caption" : "19"
+        },
+        "19" : {
+          "caption" : "20"
+        },
+        "20" : {
+          "caption" : "25"
+        },
+        "21" : {
+          "caption" : "30"
+        },
+        "22" : {
+          "caption" : "35"
+        },
+        "23" : {
+          "caption" : "40"
+        },
+        "24" : {
+          "caption" : "45"
+        },
+        "25" : {
+          "caption" : "50"
+        },
+        "26" : {
+          "caption" : "55"
+        },
+        "27" : {
+          "caption" : "60"
+        },
+        "28" : {
+          "caption" : "65"
+        },
+        "29" : {
+          "caption" : "70"
+        },
+        "30" : {
+          "caption" : "75"
+        },
+        "31" : {
+          "caption" : "80"
+        },
+        "32" : {
+          "caption" : "85"
+        },
+        "33" : {
+          "caption" : "90"
+        },
+        "34" : {
+          "caption" : "95"
+        },
+        "35" : {
+          "caption" : "100"
+        },
+        "36" : {
+          "caption" : "105"
+        },
+        "37" : {
+          "caption" : "110"
+        },
+        "38" : {
+          "caption" : "115"
+        },
+        "39" : {
+          "caption" : "120"
+        },
+        "40" : {
+          "caption" : "125"
+        },
+        "41" : {
+          "caption" : "130"
+        },
+        "42" : {
+          "caption" : "135"
+        },
+        "43" : {
+          "caption" : "140"
+        },
+        "44" : {
+          "caption" : "145"
+        },
+        "45" : {
+          "caption" : "150"
+        },
+        "46" : {
+          "caption" : "155"
+        },
+        "47" : {
+          "caption" : "160"
+        },
+        "48" : {
+          "caption" : "165"
+        },
+        "49" : {
+          "caption" : "170"
+        },
+        "50" : {
+          "caption" : "175"
+        },
+        "51" : {
+          "caption" : "180"
+        },
+        "52" : {
+          "caption" : "185"
+        },
+        "53" : {
+          "caption" : "190"
+        },
+        "54" : {
+          "caption" : "195"
+        },
+        "55" : {
+          "caption" : "195"
+        },
+        "56" : {
+          "caption" : "200"
+        },
+        "57" : {
+          "caption" : "250"
+        },
+        "58" : {
+          "caption" : "300"
+        },
+        "59" : {
+          "caption" : "350"
+        },
+        "60" : {
+          "caption" : "400"
+        },
+        "61" : {
+          "caption" : "450"
+        },
+        "62" : {
+          "caption" : "500"
+        },
+        "63" : {
+          "caption" : "550"
+        },
+        "64" : {
+          "caption" : "600"
+        },
+        "65" : {
+          "caption" : "650"
+        },
+        "66" : {
+          "caption" : "700"
+        },
+        "67" : {
+          "caption" : "750"
+        },
+        "68" : {
+          "caption" : "800"
+        },
+        "69" : {
+          "caption" : "850"
+        },
+        "70" : {
+          "caption" : "900"
+        },
+        "71" : {
+          "caption" : "950"
+        },
+        "72" : {
+          "caption" : "999"
+        }
+      }
+    },
+    "player" : {
+      "caption" : "Номер игрока",
+      "elementtype" : "int",
+      "extra":{"bits" : 7},
+      "min" : 0,
+      "default" : 0,
+      "max" : 127
+    },
+    "damage" : {
+      "elementtype" : "list",
+      "caption" : "Урон",
+      "extra":{"bits" : 4},
+      "values" : {
+        "0" : {
+          "caption" : "1"
+        },
+        "1" : {
+          "caption" : "2"
+        },
+        "2" : {
+          "caption" : "4"
+        },
+        "3" : {
+          "caption" : "5"
+        },
+        "4" : {
+          "caption" : "7"
+        },
+        "5" : {
+          "caption" : "10"
+        },
+        "6" : {
+          "caption" : "15"
+        },
+        "7" : {
+          "caption" : "17"
+        },
+        "8" : {
+          "caption" : "20"
+        },
+        "9" : {
+          "caption" : "25"
+        },
+        "10" : {
+          "caption" : "30"
+        },
+        "11" : {
+          "caption" : "35"
+        },
+        "12" : {
+          "caption" : "40"
+        },
+        "13" : {
+          "caption" : "50"
+        },
+        "14" : {
+          "caption" : "75"
+        },
+        "15" : {
+          "caption" : "100"
+        }
+      }
+    },
+    "const_e8" : {
+      "elementtype" : "const",
+      "caption" : "Константа E8",
+      "extra":{"bits" : 8},
+      "value" : 232
+    },
+    "int8" : {
+      "elementtype" : "int",
+      "extra":{"bits" : 8},
+      "min" : 0,
+      "default" : 0,
+      "max" : 255
+    },
+    "sint8" : {
+      "elementtype" : "int",
+      "extra":{"bits" : 8},
+      "min" : -128,
+      "default" : 0,
+      "max" : 127
+    },
+    "ir_constructor" : {
+      "elementtype" : "bits_constructor",
+      "caption" : "",
+      "contain" : [
+        {
+          "caption" : "Тип пакета",
+          "extra":{"bits" : 1},
+          "elementtype" : "list",
+          "values" : {
+            "0" : {
+              "caption" : "Выстрел",
+              "contain" : [
+                {
+                  "ref" : "player"
+                },
+                {
+                  "ref" : "team"
+                },
+                {
+                  "ref" : "damage"
+                }
+              ]
+            },
+            "1" : {
+              "caption" : "Команда",
+              "contain" : [
+                {
+                  "extra":{"bits" : 7},
+                  "elementtype" : "list",
+                  "values" : {
+                    "0" : {
+                      "caption" : "Добавляет игроку Х единиц здоровья",
+                      "contain" : [
+                        {
+                          "ref" : "int8",
+                          "max": 100,
+                          "caption" : "Единицы здоровья"
+                        }
+                      ]
+                    },
+                    "1" : {
+                      "caption" : "Добавляет игроку Х патронов",
+                      "contain" : [
+                        {
+                          "ref" : "int8",
+                          "max": 100,
+                          "caption" : "Единицы патронов"
+                        }
+                      ]
+                    },
+                    "3" : {
+                      "caption" : "Команда",
+                      "contain" : [
+                        {
+                          "extra":{"bits" : 8},
+                          "elementtype" : "list",
+                          "values" : {
+                            "0" : {
+                              "caption" : "Admin KILL"
+                            },
+                            "1" : {
+                              "caption" : "Поставить/снять с паузы"
+                            },
+                            "2" : {
+                              "caption" : "Старт игры"
+                            },
+                            "3" : {
+                              "caption" : "Восстановить значения по умолчинию"
+                            },
+                            "4" : {
+                              "caption" : "Респаун"
+                            },
+                            "5" : {
+                              "caption" : "Рестарт игры"
+                            },
+                            "6" : {
+                              "caption" : "Полный боекомплект"
+                            },
+                            "7" : {
+                              "caption" : "Завершить игру"
+                            },
+                            "8" : {
+                              "caption" : "Сбросить часы"
+                            },
+                            "9" : {
+                              "caption" : "Команды меняются местами"
+                            },
+                            "10" : {
+                              "caption" : "Инициализация игрока"
+                            },
+                            "11" : {
+                              "caption" : "Взорвать игрока"
+                            },
+                            "12" : {
+                              "caption" : "Новая игра"
+                            },
+                            "13" : {
+                              "caption" : "Полное здоровье"
+                            },
+                            "14" : {
+                              "caption" : "Мощность выстрела 49%/99%"
+                            },
+                            "15" : {
+                              "caption" : "Полная амуниция игрока"
+                            },
+                            "16" : {
+                              "caption" : "Удвоить количество единиц жизни игрока до конца раунда. Может быль повторно использовано вплоть до достижения 255 единиц жизни"
+                            },
+                            "17" : {
+                              "caption" : "Передается контрольной точкой в случае ее захвата"
+                            },
+                            "18" : {
+                              "caption" : "Передается ИВУ в случае деактивации бомбы"
+                            },
+                            "20" : {
+                              "caption" : "Очистить статистику"
+                            },
+                            "21" : {
+                              "caption" : "Тест повязки"
+                            },
+                            "22" : {
+                              "caption" : "Оглушить игрока"
+                            },
+                            "23" : {
+                              "caption" : "Разоружить игрока"
+                            },
+                            "32" : {
+                              "caption" : "Увеличить силу выстрела (след. значение в таблице урона)"
+                            },
+                            "33" : {
+                              "caption" : "Увеличить скорострельность до 750 выстр/мин"
+                            },
+                            "34" : {
+                              "caption" : "Двойная жизнь до конца раунда"
+                            },
+                            "35" : {
+                              "caption" : "Остановка кровотечения"
+                            },
+                            "232" : {
+                              "caption" : "Оглушить игрока (здоровье не уменьшается, но не может стрелять определенное время). LaserWar"
+                            }
+                          },
+                          "caption" : "Команда"
+                        }
+                      ]
+                    },
+                    "10" : {
+                      "caption" : "Добавляет игроку Х обойм",
+                      "contain" : [
+                        {
+                          "ref" : "int8",
+                          "max" : 15,
+                          "caption" : "Единиц обойм"
+                        }
+                      ]
+                    },
+                    "11" : {
+                      "caption" : "Аптечка",
+                      "contain" : [
+                        {
+                          "ref" : "health",
+                          "caption" : "Единиц здоровья"
+                        }
+                      ]
+                    },                    
+                    "12" : {
+                      "caption" : "Поднять флаг",
+                      "contain" : [
+                        {
+                          "max" : 15,
+                          "ref" : "int8",
+                          "caption" : "ID флага"
+                        }
+                      ]
+                    },
+                    "32" : {
+                      "caption" : "Радиация (отнимает здоровье)",
+                      "contain" : [
+                        {
+                          "ref" : "int8",
+                          "max": 100,                          
+                          "caption" : "Отнимает единиц здоровья"
+                        }
+                      ]
+                    },
+                    "33" : {
+                      "caption" : "Аномалия (добавляет здоровье)",
+                      "contain" : [
+                        {
+                          "ref" : "int8",
+                          "max": 100,                          
+                          "caption" : "Добавляет единиц здоровья"
+                        }
+                      ]
+                    },
+                    "35" : {
+                      "caption" : "Резерв - используется артефактами",
+                      "contain" : [
+                        {
+                          "ref" : "int8",
+                          "max": 7,                          
+                          "caption" : ""
+                        }
+                      ]
+                    },                    
+                    "37" : {
+                      "caption" : "Мощность излучателя",
+                      "contain" : [
+                        {
+                          "ref" : "int8",
+                          "caption" : "Значение"
+                        }
+                      ]
+                    },
+                    "38" : {
+                      "caption" : "Время раунда",
+                      "contain" : [
+                        {
+                          "ref" : "int8",
+                          "min" : 1,
+                          "caption" : "Минут"
+                        }
+                      ]
+                    },
+                    "40" : {
+                      "caption" : "Установить пресет игровых настроек",
+                      "contain" : [
+                        {
+                          "extra":{"bits" : 8},
+                          "elementtype" : "list",
+                          "values" : {
+                            "0" : {
+                              "caption" : "Штурмовик"
+                            },
+                            "1" : {
+                              "caption" : "Заложник"
+                            },
+                            "2" : {
+                              "caption" : "Последний герой"
+                            },
+                            "3" : {
+                              "caption" : "Зомби"
+                            },
+                            "4" : {
+                              "caption" : "Спецназ"
+                            },
+                            "6" : {
+                              "caption" : "Терминатор"
+                            },
+                            "7" : {
+                              "caption" : "Зомби (2)"
+                            },
+                            "8" : {
+                              "caption" : "Последний герой (2)"
+                            }
+                          },
+                          "caption" : "Пресет"
+                        }
+                      ]
+                    },
+                    "41" : {
+                      "caption" : "Сменить цвет команды",
+                      "contain" : [
+                        {
+                          "ref" : "team",
+                          "extra":{"bits" : 8},
+                          "caption" : "на"
+                        }
+                      ]
+                    },                    
+                    
+                    "42" : {
+                      "caption" : "Воспроизвести звук",
+                      "contain" : [
+                        {
+                          "elementtype" : "list",
+                          "caption" : "",
+                          "extra":{"bits" : 8},
+                          "values":{
+                            "0":{"caption":"NULL"},
+                            "1":{"caption":"01_milshot"},
+                            "2":{"caption":"02_empty"},
+                            "3":{"caption":"03_clip"},
+                            "4":{"caption":"04_milaction"},
+                            "5":{"caption":"05_nearmiss"},
+                            "6":{"caption":"06_damage"},
+                            "7":{"caption":"07_dead"},
+                            "8":{"caption":"08_powerup"},
+                            "9":{"caption":"09_beep"},
+                            "10":{"caption":"10_buzz"},
+                            "11":{"caption":"11_addhealth"},
+                            "12":{"caption":"12_addammo"},
+                            "13":{"caption":"13_addshield"},
+                            "14":{"caption":"14_gameover"},
+                            "15":{"caption":"15_explosion"},
+                            "16":{"caption":"16_shieldhit"},
+                            "17":{"caption":"17_flag"},
+                            "18":{"caption":"18_flagscore"},
+                            "19":{"caption":"19_cloneok"},
+                            "20":{"caption":"20_sensorfail"},
+                            "21":{"caption":"21_scishot"},
+                            "22":{"caption":"22_sciaction"},
+                            "23":{"caption":"23_scoreok"},
+                            "24":{"caption":"24_repair"},
+                            "25":{"caption":"25_silenced"},
+                            "26":{"caption":"26_disarm"},
+                            "27":{"caption":"27_lowbatt"},
+                            "28":{"caption":"28_zombie1"},
+                            "29":{"caption":"29_zombie2"},
+                            "30":{"caption":"30_stunned "}                          
+                          }
+                        }
+                      ]
+                    },
+                    "48" : {
+                      "caption" : "Отнять/добавить здоровья красной команде",
+                      "contain" : [
+                        {
+                          "ref" : "sint8",
+                          "caption" : "Значение"
+                        }
+                      ]
+                    },
+                    "49" : {
+                      "caption" : "Отнять/добавить здоровья синей команде",
+                      "contain" : [
+                        {
+                          "ref" : "sint8",
+                          "caption" : "Значение"
+                        }
+                      ]
+                    },
+                    "50" : {
+                      "caption" : "Отнять/добавить здоровья желтой команде",
+                      "contain" : [
+                        {
+                          "ref" : "sint8",
+                          "caption" : "Значение"
+                        }
+                      ]
+                    },
+                    "51" : {
+                      "caption" : "Отнять/добавить здоровья зеленой команде",
+                      "contain" : [
+                        {
+                          "ref" : "sint8",
+                          "caption" : "Значение"
+                        }
+                      ]
+                    },
+                    "52" : {
+                      "caption" : "Возродить команду",
+                      "contain" : [
+                        {
+                          "ref" : "team",
+                          "extra":{"bits" : 8},
+                          "caption" : "№"
+                        }
+                      ]
+                    },
+                    "53" : {
+                      "caption" : "Пауза команды",
+                      "contain" : [
+                        {
+                          "ref" : "team",
+                          "extra":{"bits" : 8},
+                          "caption" : "№"
+                        }
+                      ]
+                    },
+                    "54" : {
+                      "caption" : "Убить команду",
+                      "contain" : [
+                        {
+                          "ref" : "team",
+                          "extra":{"bits" : 8},
+                          "caption" : "№"
+                        }
+                      ]
+                    },
+                    "55" : {
+                      "caption" : "Полная амуниция команды",
+                      "contain" : [
+                        {
+                          "ref" : "team",
+                          "extra":{"bits" : 8},
+                          "caption" : "№"
+                        }
+                      ]
+                    },
+                    "56" : {
+                      "caption" : "Возродить игрока",
+                      "contain" : [
+                        {
+                          "ref" : "player",
+                          "extra":{"bits" : 8},
+                          "caption" : "№"
+                        }
+                      ]
+                    },
+                    "57" : {
+                      "caption" : "Пауза игрока",
+                      "contain" : [
+                        {
+                          "ref" : "player",
+                          "extra":{"bits" : 8},
+                          "caption" : "№"
+                        }
+                      ]
+                    },
+                    "58" : {
+                      "caption" : "Убить игрока",
+                      "contain" : [
+                        {
+                          "ref" : "player",
+                          "extra":{"bits" : 8},
+                          "caption" : "№"
+                        }
+                      ]
+                    },
+                    "59" : {
+                      "caption" : "Полная амуниция игрока",
+                      "contain" : [
+                        {
+                          "ref" : "player",
+                          "extra":{"bits" : 8},
+                          "caption" : "№"
+                        }
+                      ]
+                    }
+                  },
+                  "caption" : "Сообщение"
+                },
+                {
+                  "ref" : "const_e8",
+                  "caption": ""
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  };
+    
+     function isObject(item) {
+       return (item && typeof item === 'object' && !Array.isArray(item));
+     }
+     
+     function mergeDeep(target, ...sources) {
+       if (!sources.length) return target;
+       const source = sources.shift();
+     
+       if (isObject(target) && isObject(source)) {
+         for (const key in source) {
+           if (isObject(source[key])) {
+             if (!target[key]) Object.assign(target, { [key]: {} });
+             mergeDeep(target[key], source[key]);
+           } else {
+             Object.assign(target, { [key]: source[key] });
+           }
+         }
+       }
+     
+       return mergeDeep(target, ...sources);
+     }    
+         
+     function resolveElement(element) {
+         // Проверяем наличие поля "ref" в элементе
+         if (element.ref && refs[element.ref]) {
+             // Получаем прототип из refs
+             res = mergeDeep(resolveElement({...refs[element.ref]}), element)
+              
+             return res
+         }
+     
+         // Если "ref" не существует, возвращаем оригинальный элемент
+         return element;
+     }    
+
+    function refreshContainer (container, element) {
+        const childContainer = document.createElement('div');
+        childContainer.className = 'child-elements';
+
+        if (element.contain) {
+            element.contain.forEach(childElement => {
+                const childFormElement = createFormElement(childElement);
+                
+                console.log(childElement)
+                childContainer.appendChild(childFormElement);
+            });
+        }
+
+        // Удаляем предыдущие дочерние элементы, если они есть
+        const existingChildContainer = container.querySelector('.child-elements');
+        if (existingChildContainer) {
+            container.removeChild(existingChildContainer);
+        }
+        container.appendChild(childContainer);  
+    }
+    
+function collectBits(container) {
+
+
+    let value = 0; // Начальное значение
+    let bits = 0;  // Начальный размер битового поля
+    let child_bits = 0; //Число битов в дочерней структуре
+    
+    // Обрабатываем дочерние элементы с классом "child-elements"
+    
+    const existingChildContainer = container.querySelector('.child-elements');
+    if (existingChildContainer) {
+      $(existingChildContainer).children('.form-element').each(function() {
+          const childValue = collectBits(this); // Рекурсивный вызов для дочернего элемента
+          value <<= childValue.bits; // Сдвигаем текущее значение влево
+          child_bits = child_bits + childValue.bits; 
+          value |= childValue.value; // Объединяем с дочерним значением
+      });
+    }    
+   
+    // Получаем размер текущего битового поля
+    const extraBits = $(container).data("extra");
+    
+    if (extraBits && extraBits.bits) {
+      bits = extraBits.bits;
+      // Получаем значение текущего битового поля
+      const currentValue = $(container)[0].getValue(); // Предполагается, что getValue() возвращает число
+      value |= (currentValue & ((1 << bits) - 1)) << child_bits; // Устанавливаем значение в соответствующие биты
+    } 
+
+    console.log('extraBits', extraBits, 'value', value, 'bits', bits, 'child_bits', child_bits)
+
+    return {value: value, bits: bits + child_bits }; // Возвращаем собранное значение
+}
+    
+
+    function createFormElement(element) {
+        const container = document.createElement('div');
+        container.className = 'form-element';
+ 
+        element = resolveElement(element);
+
+        if (element.extra) {
+          $(container).data("extra", element.extra)
+        }
+
+        if (element.caption) {
+           const label = document.createElement('label');
+           label.textContent = element.caption;
+           container.appendChild(label);
+        }
+
+        if (element.elementtype === 'int') {
+        
+            const slider = document.createElement('div');
+            const handle = document.createElement('div');
+            handle.className = 'ui-slider-handle';
+            slider.appendChild(handle);
+            container.appendChild(slider);
+	    $(slider).slider({
+	      create: function() {
+	        $(handle).text( $( this ).slider( "value" ) );
+	      },
+	      slide: function( event, ui ) {
+	        $(handle).text( ui.value );
+	      },
+	      min: element.min,
+	      max: element.max,
+	      step: 1,
+	      value: element.default
+	    });
+	    //$(container).getValue = function() {return $(slider).val()};
+            $(container).each(function (ix,o) {
+              o.getValue = function() {
+                console.log('slider get value', $( slider ).slider( "value" ) );
+                return $( slider ).slider( "value" );
+              }
+            });   
+             	    
+        } else if (element.elementtype === 'list') {
+            const select = document.createElement('select');
+            for (const key in element.values) {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = element.values[key].caption;
+                select.appendChild(option);
+            }
+            
+            container.appendChild(select);
+
+            $(select).selectmenu({
+              change:  function( event, data ) {      
+                refreshContainer(container, element.values[data.item.value]);            
+	      } 
+            });
+
+	    //$(container).getValue = function() {return $(select).val()};
+            $(container).each(function (ix,o) {
+              o.getValue = function() {return $(select).val()}
+            });   
+            
+            //Выбираем значение 0  
+            $(select).val(0).selectmenu( "refresh" );
+            
+            select.dispatchEvent(new Event('change'));
+            
+            refreshContainer(container, element.values[$(select).val()]);
+                        
+            
+        } else if (element.elementtype === 'bits_constructor') {
+            refreshContainer(container, element);
+            
+             $(container).each(function (ix,o) {
+               o.getValue = function() {return collectBits(container);};
+             });                  
+        } else if (element.elementtype === 'const') {
+            //$(container).getValue = function() {return element.value};
+            $(container).each(function (ix,o) {
+              o.getValue = function() {return element.value};
+            });              
+        } else if (element.elementtype === 'formatter') {
+        
+            before = element.position && element.position == 'before';
+        
+            for (let i = 0; i < 2; i++) { // выведет 0, затем 1, затем 2
+              if (before) {
+                const label = document.createElement('label');
+                const ButtonRead = document.createElement('button');
+                
+                ButtonRead.innerText = element.caption;                
+                container.appendChild(ButtonRead);    
+                $(ButtonRead).click (function() {
+                  const firsValue = container.querySelector('.child-elements > .form-element');
+                  let value = $(firsValue)[0].getValue()             
+                  label.textContent = $(container).data("extra").format(value);
+                  console.log(label)
+                })
+                $(ButtonRead).button()
+                
+                //label.textContent = element.caption;
+                container.appendChild(label);              
+              } else {
+                refreshContainer(container, element);
+              }
+              before = !before;
+            }
+    
+            $(container).each(function (ix,o) {
+               o.getValue = function() {
+                 const firsValue = container.querySelector('.child-elements > .form-element');   
+                 return element.format(firsValue[0].getValue())                                
+               };
+            });   
+        }
+
+        return container;
+    }
+    // Пример использования
+const jsonData = [
+{
+  "elementtype" : "formatter",
+  "caption": "Получить HEX",
+  "position": "before",
+  "extra":{"format": function(value) {
+    return value.value.toString(16);
+  }},
+  "contain" : [
+   {
+       "ref": "ir_constructor",
+       "caption": ""
+   }
+  ]      
+}];
+
+    // Генерация формы из JSON
+    jsonData.forEach(element => {
+        const formElement = createFormElement(element);
+        document.getElementById('formContainer').appendChild(formElement);
+    });
+    
+
+
+
+</script>
+
+</body>
+</html>
