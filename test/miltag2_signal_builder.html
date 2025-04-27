@@ -989,7 +989,7 @@ function collectBits(container) {
                 const label = document.createElement('label');
                 const ButtonRead = document.createElement('button');
                 
-                ButtonRead.innerText = element.caption;                
+                ButtonRead.innerText = element.button_caption;                
                 container.appendChild(ButtonRead);    
                 $(ButtonRead).click (function() {
                   const firsValue = container.querySelector('.child-elements > .form-element');
@@ -1021,8 +1021,8 @@ function collectBits(container) {
 const jsonData = [
 {
   "elementtype" : "formatter",
-  "caption": "Получить HEX",
-  "position": "before",
+  "button_caption": "Получить HEX",
+  "position": "after",
   "extra":{"format": function(value) {
     return value.value.toString(16);
   }},
