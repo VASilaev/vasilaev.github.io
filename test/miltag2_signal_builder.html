@@ -789,6 +789,24 @@
                           "caption" : "№"
                         }
                       ]
+                    },
+                    "68" : {
+                      "caption" : "Дружественный огонь",
+                      "contain" : [
+                        {
+                          "elementtype" : "list",
+                          "caption" : "",
+                          "extra":{"bits" : 8},
+                          "values" : {
+                            "0" : {
+                              "caption" : "Выкл"
+                            },
+                            "255" : {
+                              "caption" : "Вкл"
+                            }
+                          }
+                        }
+                      ]
                     }
                   },
                   "caption" : "Сообщение"
@@ -802,7 +820,75 @@
           }
         }
       ]
-    }
+    },
+
+        
+    "ir_block" : {
+           "elementtype" : "transformer",
+           "extra":{"getvalue": function(container) {
+             let value = {};  
+             const existingChildContainer = container.querySelector('.child-elements');
+             if (existingChildContainer) {
+               $(existingChildContainer).children('.form-element').each(function() {
+                 const extra = $(this).data("extra");
+                 if (extra && extra.id) {
+                   value[extra.id] = $(this)[0].getValue();
+                 }     
+               });
+             }              
+             return value;
+            },
+            "format": function(value) {
+               return new URLSearchParams(value).toString(); //JSON.stringify(value);
+             }
+           },
+           "contain" : [
+               
+             {
+               "elementtype" : "transformer",
+               "extra":{
+                 "format": function(value) {return value.value.toString(16);},
+                 "id": "s"
+               },
+               "contain" : [
+                {       
+                 "ref": "ir_constructor",
+                 "caption": "Конструктор ИК сигнала:"
+                }
+               ]      
+             },
+         
+             {
+              "caption":"Количество. (0 - бесконечно)",
+              "elementtype" : "int",
+              "extra":{"id": "count"},     
+              "min" : 0,
+              "default" : 0,
+              "max" : 255
+             },    
+             
+             {
+              "elementtype" : "list",
+              "caption" : "Иконка",
+              "extra":{"id" : "icon"},
+              "values" : {
+               "hp" : {"caption" : "Здоровье (hp)"},
+               "clips" : {"caption" : "Патроны (clips)"},
+               "ammo" : {"caption" : "Обойма (ammo)"},
+               "respawn" : {"caption" : "Респаун (respawn)"}
+              }
+             },    
+             
+             {
+              "elementtype" : "textinput",
+              "caption" : "Альтернативный текст",
+              "extra":{"id" : "alt"}
+             }      
+           
+           ]      
+          }         
+         
+
   };
     
      function isObject(item) {
@@ -931,20 +1017,25 @@ function collectBits(container) {
 	      step: 1,
 	      value: element.default
 	    });
-	    //$(container).getValue = function() {return $(slider).val()};
             $(container).each(function (ix,o) {
               o.getValue = function() {
-                console.log('slider get value', $( slider ).slider( "value" ) );
                 return $( slider ).slider( "value" );
               }
             });   
              	    
         } else if (element.elementtype === 'list') {
             const select = document.createElement('select');
+            
+            let default_value = 0;
+            
             for (const key in element.values) {
                 const option = document.createElement('option');
                 option.value = key;
                 option.textContent = element.values[key].caption;
+                if (!default_value || element.values[key].selected) {
+                  default_value = key;
+                  option.selected = "selected";
+                };
                 select.appendChild(option);
             }
             
@@ -956,17 +1047,27 @@ function collectBits(container) {
 	      } 
             });
 
-	    //$(container).getValue = function() {return $(select).val()};
-            $(container).each(function (ix,o) {
-              o.getValue = function() {return $(select).val()}
+            $(container).each(function (ix,o) {              
+              o.getValue = function() {
+                const extra = $(container).data("extra");
+                
+                var value = '';
+                if (extra && extra.getvalue) {
+                  value = extra.getvalue(container);
+                } else {
+                  value = $(select).val()
+                }              
+              
+                return value;
+             }
             });   
             
             //Выбираем значение 0  
-            $(select).val(0).selectmenu( "refresh" );
+            $(select).val(default_value).selectmenu( "refresh" );
             
             select.dispatchEvent(new Event('change'));
-            
-            refreshContainer(container, element.values[$(select).val()]);
+                       
+            refreshContainer(container, element.values[default_value]);
                         
             
         } else if (element.elementtype === 'bits_constructor') {
@@ -976,10 +1077,33 @@ function collectBits(container) {
                o.getValue = function() {return collectBits(container);};
              });                  
         } else if (element.elementtype === 'const') {
-            //$(container).getValue = function() {return element.value};
             $(container).each(function (ix,o) {
               o.getValue = function() {return element.value};
             });              
+        } else if (element.elementtype === 'transformer') {
+          $(container).each(function (ix,o) {
+            o.getValue = function() {
+              const extra = $(container).data("extra");
+              
+              var value = '';
+              if (extra && extra.getvalue) {
+                value = extra.getvalue(container);
+              } else {
+                const firstValue = container.querySelector('.child-elements > .form-element');
+                value = $(firstValue)[0].getValue()
+              }
+              
+              console.log('transformer value ', value)
+              
+              if (extra && extra.format) {
+                value = extra.format(value);
+              };
+                            
+              return value;
+            };
+          });
+            
+          refreshContainer(container, element);
         } else if (element.elementtype === 'formatter') {
         
             before = element.position && element.position == 'before';
@@ -995,7 +1119,7 @@ function collectBits(container) {
                   const firsValue = container.querySelector('.child-elements > .form-element');
                   let value = $(firsValue)[0].getValue()             
                   label.textContent = $(container).data("extra").format(value);
-                  console.log(label)
+                  console.log('formatter value', value, $(firsValue)[0].getValue)
                 })
                 $(ButtonRead).button()
                 
@@ -1013,7 +1137,40 @@ function collectBits(container) {
                  return element.format(firsValue[0].getValue())                                
                };
             });   
-        }
+        } else if (element.elementtype === 'textinput') {
+        
+          const input = document.createElement('input');
+          input.setAttribute("type", "text");
+          container.appendChild(input);            
+          $(container).each(function (ix,o) {
+            o.getValue = function() {return $(input).val()}
+          });               
+             	    
+        } else if (element.elementtype === 'array') {
+          const buttonAdd = document.createElement('button');
+          const table = document.createElement('table');
+          container.appendChild(table);    
+          
+                    
+          buttonAdd.innerText = "Добавить";                
+          container.appendChild(buttonAdd);    
+          $(buttonAdd).click (function() {
+            const element = createFormElement(element.base);
+            const row = document.createElement('tr');
+            row.appendChild(element);                       
+            table.append (row)
+          })
+          $(buttonAdd).button()
+                
+        
+          $(container).each(function (ix,o) {
+            o.getValue = function() {
+              const extra = $(container).data("extra");
+              return extra.getvalue(container);
+            }
+          });               
+        
+        } 
 
         return container;
     }
@@ -1021,18 +1178,33 @@ function collectBits(container) {
 const jsonData = [
 {
   "elementtype" : "formatter",
-  "button_caption": "Получить HEX",
+  "button_caption": "Получить значение",
   "position": "after",
   "extra":{"format": function(value) {
-    return value.value.toString(16);
+    return JSON.stringify(value);
   }},
   "contain" : [
-   {
-       "ref": "ir_constructor",
-       "caption": ""
-   }
+    {
+    "elementtype" : "list",
+    "caption" : "Тип блока",
+     "extra":{
+       "getvalue": function(container) {
+         let value = {};        
+         const select = $(container)[0].querySelector('select')      
+         let val = $(select).val()      
+         value["recordType"] = val;
+         const opt = $(select).find(":selected").closest(".form-element")[0].querySelector('.child-elements > .form-element');
+         value["data"] = opt.getValue();
+         return value;
+       }
+     },      
+    "values" : {
+      ":ir" : {"caption" : "ИК сигнал", "contain":[{"ref":"ir_block"}]}       
+    }
+   }               
   ]      
-}];
+}
+];
 
     // Генерация формы из JSON
     jsonData.forEach(element => {
